@@ -308,7 +308,7 @@
 		var plugins = module.parent.require('./plugins');
 		plugins.fireHook('static:plugin-bbcodes-load', { codeTable: defaultCodes });
 		winston.verbose("BBCode plugin loaded");
-		callback(object);
+		callback();
 	};
 
 	module.exports.parse = function(data, callback) {
