@@ -1,0 +1,18 @@
+{
+	"id": "nodebb-plugin-bbcodes",
+	"name": "NodeBB BBCode Support",
+	"description": "BBCode parser for NodeBB. It is strongly recommended to turn nodebb-plugin-markdown off to prevent collisions",
+	"url": "https://github.com/APXEOLOG/nodebb-plugin-bbcodes",
+	"library": "./library.js",
+	"hooks": [{
+		"hook": "filter:parse.post",
+		"method": "parse",
+		"priority": 6
+	}, {
+		"hook": "static:app.load",
+		"method": "load"
+	}],
+	"nbbpm": {
+        "compatibility": "^0.7.0"
+    }
+}
