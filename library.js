@@ -304,11 +304,11 @@
 
 	var winston = require('winston');
 
-	module.exports.load = function(callback) {
+	module.exports.load = function(object, callback) {
 		var plugins = module.parent.require('./plugins');
 		plugins.fireHook('static:plugin-bbcodes-load', { codeTable: defaultCodes });
 		winston.verbose("BBCode plugin loaded");
-		callback();
+		callback(object);
 	};
 
 	module.exports.parse = function(data, callback) {
