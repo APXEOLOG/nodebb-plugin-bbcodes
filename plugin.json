@@ -12,6 +12,9 @@
 		"hook": "static:app.load",
 		"method": "load"
 	}],
+	"staticDirs": {
+		"static": "./static"
+	},
 	"nbbpm": {
         "compatibility": "^0.7.0"
     }
