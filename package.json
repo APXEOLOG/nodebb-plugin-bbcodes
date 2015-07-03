@@ -1,25 +1,25 @@
 {
-	"name": "nodebb-plugin-bbcodes",
-	"version": "1.0.0",
-	"description": "BBCode parser for NodeBB. It is strongly recommended to turn nodebb-plugin-markdown off to prevent collisions",
-	"main": "library.js",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/APXEOLOG/nodebb-plugin-bbcodes.git"
-	},
-	"keywords": [
-		"nodebb",
-		"plugin",
-		"bbcode"
-	],
-	"author": {
-		"name": "APXEOLOG",
-		"email": "apxeolog.ru@gmail.com"
-	},
-	"license": "GPLv3",
-	"bugs": {
-		"url": "https://github.com/APXEOLOG/nodebb-plugin-bbcodes/issues"
-	},
-	"homepage": "https://github.com/APXEOLOG/nodebb-plugin-bbcodes",
-	"scripts": {}
+  "name": "nodebb-plugin-bbcodes",
+  "version": "1.1.0",
+  "description": "BBCode parser for NodeBB. It is strongly recommended to turn nodebb-plugin-markdown off to prevent collisions",
+  "main": "library.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/APXEOLOG/nodebb-plugin-bbcodes.git"
+  },
+  "keywords": [
+    "nodebb",
+    "plugin",
+    "bbcode"
+  ],
+  "author": {
+    "name": "APXEOLOG",
+    "email": "apxeolog.ru@gmail.com"
+  },
+  "license": "GPLv3",
+  "bugs": {
+    "url": "https://github.com/APXEOLOG/nodebb-plugin-bbcodes/issues"
+  },
+  "homepage": "https://github.com/APXEOLOG/nodebb-plugin-bbcodes",
+  "scripts": {}
 }
