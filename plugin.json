@@ -15,6 +15,9 @@
 	"staticDirs": {
 		"static": "./static"
 	},
+	"scripts": [
+		"static/buttons.js"
+	],
 	"nbbpm": {
         "compatibility": "^0.7.0"
     }
