@@ -315,7 +315,7 @@
 		if (!data || !data.postData || !data.postData.content) {
 			return callback(null, data);
 		}
-		var sanitized = data.postData.content.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+		var sanitized = data.postData.content.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br />");
 		data.postData.content = new BBCodeParser(sanitized, defaultCodes).parse();
 
 		callback(null, data);

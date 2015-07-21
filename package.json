@@ -1,6 +1,6 @@
 {
 	"name": "nodebb-plugin-bbcodes",
-	"version": "1.0.0",
+	"version": "1.0.2",
 	"description": "BBCode parser for NodeBB. It is strongly recommended to turn nodebb-plugin-markdown off to prevent collisions",
 	"main": "library.js",
 	"repository": {
@@ -13,8 +13,8 @@
 		"bbcode"
 	],
 	"author": {
-		"name": "APXEOLOG",
-		"email": "apxeolog.ru@gmail.com"
+		"name": "miranmirza",
+		"email": "miranmirza@gmail.com"
 	},
 	"license": "GPLv3",
 	"bugs": {
