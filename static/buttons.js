@@ -1,5 +1,7 @@
 $('document').ready(function() {
 	require(['composer', 'composer/controls'], function(composer, controls) {
+		if (composer === undefined || composer.addButton === undefined) return;
+		
 		composer.addButton('fa fa-bold', function(textarea, selectionStart, selectionEnd) {
 			if(selectionStart === selectionEnd){
 				controls.insertIntoTextarea(textarea, "[b] Bolded Text [/b]");
