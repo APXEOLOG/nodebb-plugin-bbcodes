@@ -1,6 +1,6 @@
 {
   "name": "nodebb-plugin-bbcodes",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "BBCode parser for NodeBB",
   "main": "library.js",
   "repository": {
@@ -23,6 +23,6 @@
   "homepage": "https://github.com/APXEOLOG/nodebb-plugin-bbcodes",
   "scripts": {},
   "nbbpm": {
-      "compatibility": "^0.7.0"
+    "compatibility": "^0.7.0"
   }
 }
