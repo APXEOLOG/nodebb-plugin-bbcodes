@@ -302,22 +302,52 @@
 		}
 	}
 
-	var winston = require('winston');
-
-	module.exports.load = function(object, callback) {
-		var plugins = module.parent.require('./plugins');
-		plugins.fireHook('static:plugin-bbcodes-load', { codeTable: defaultCodes });
-		winston.verbose("BBCode plugin loaded");
-		callback();
-	};
+	var winston = require('winston'),
+		meta = module.parent.require('./meta'),
+		plugins = module.parent.require('./plugins'),
+		sanitize = true;
 
 	module.exports.parse = function(data, callback) {
 		if (!data || !data.postData || !data.postData.content) {
 			return callback(null, data);
 		}
-		var sanitized = data.postData.content.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-		data.postData.content = new BBCodeParser(sanitized, defaultCodes).parse();
-
+		if (sanitize) {
+			data.postData.content= data.postData.content.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br />");
+		}
+		data.postData.content = new BBCodeParser(data.postData.content, defaultCodes).parse();
 		callback(null, data);
+	};
+
+	function adminPanelController(req, res, next) {
+		res.render('bbcodes-admin', { });
+	};
+	
+	module.exports.load = function(app, next) {
+		// Fire hook to collect extensions
+		plugins.fireHook('static:plugin-bbcodes-load', { codeTable: defaultCodes });
+		// Bind admin panel url
+		app.router.get('/admin/plugins/bbcodes', app.middleware.admin.buildHeader, adminPanelController);
+		app.router.get('/api/admin/plugins/bbcodes', adminPanelController);
+
+		meta.configs.getFields(['bbcodes-sanitize'], function(err, config) {
+			if (config && config["bbcodes-sanitize"]) {
+				if (config["bbcodes-sanitize"] === '0') {
+					sanitize = false;
+				}
+			} else {
+				meta.configs.set('bbcodes-sanitize', '1');
+			}
+			winston.verbose("BBCode plugin loaded");
+			next(null);
+		});
+	};
+
+	module.exports.extendAdminMenu = function(header, next) {
+		header.plugins.push({
+			"route": '/plugins/bbcodes',
+			"icon": 'fa-bold',
+			"name": 'BBCodes'
+		});
+		next(null, header);
 	};
 }(module));

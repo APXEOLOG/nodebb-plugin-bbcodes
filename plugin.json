@@ -4,6 +4,7 @@
 	"description": "BBCode parser for NodeBB. It is strongly recommended to turn nodebb-plugin-markdown off to prevent collisions",
 	"url": "https://github.com/APXEOLOG/nodebb-plugin-bbcodes",
 	"library": "./library.js",
+	"templates": "./templates",
 	"hooks": [{
 		"hook": "filter:parse.post",
 		"method": "parse",
@@ -11,6 +12,9 @@
 	}, {
 		"hook": "static:app.load",
 		"method": "load"
+	}, {
+		"hook": "filter:admin.header.build",
+		"method": "extendAdminMenu"
 	}],
 	"staticDirs": {
 		"static": "./static"
