@@ -54,3 +54,30 @@ $('document').ready(function() {
 		
 	});
 });
+
+$('document').ready(function() {
+	$('body').on('click', '.btn-ajx-spoiler', function() {
+		var spoilerButton = $(this);
+		var spoilerHeader = spoilerButton.parent().parent();
+		if (spoilerButton.attr('sync') === 'true') {
+			spoilerHeader.find(".panel-collapse").toggle();
+		} else {
+			var spoilerId = spoilerHeader.attr('ajax-spoiler-id');
+			var pid = spoilerHeader.parents("li[component=post]").attr('data-pid');
+			if (spoilerId !== undefined) {
+				spoilerHeader.find('.ajax-spoiler-spin').removeClass('hidden');
+				spoilerHeader.find('.ajax-spoiler-error').addClass('hidden');
+				$.post('/api/bbcodes/getSpoilerContent', { id: spoilerId, pid: pid }, function(data) {
+					spoilerHeader.find('.ajax-spoiler-spin').addClass('hidden');
+					if (data.success === true) {
+						spoilerHeader.find(".panel-body").html(data.content);
+						spoilerHeader.find(".panel-collapse").toggle();
+						spoilerButton.attr('sync', 'true');
+					} else {
+						spoilerHeader.find('.ajax-spoiler-error').removeClass('hidden');
+					}
+				}, "json");
+			}
+		}
+	});
+});

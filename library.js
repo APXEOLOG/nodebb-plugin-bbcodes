@@ -1,63 +1,10 @@
 (function(module) {
 	"use strict";
 
-	var defaultCodes = {
-		"b": {
-			apply: function(value, argument) {
-				return '<b>' + value + '</b>';
-			}
-		},
-		"i": {
-			apply: function(value, argument) {
-				return '<i>' + value + '</i>';
-			}
-		},
-		"u": {
-			apply: function(value, argument) {
-				return '<u>' + value + '</u>';
-			}
-		},
-		"s": {
-			apply: function(value, argument) {
-				return '<s>' + value + '</s>';
-			}
-		},
-		"link": {
-			apply: function(value, argument) {
-				return '<a href="' + value + '">' + (argument !== undefined ? argument : value) + '</a>';
-			}
-		},
-		"img": {
-			apply: function(value, argument) {
-				return '<img src="' + value + '"></img>';
-			}
-		},
-		"color": {
-			apply: function(value, argument) {
-				return '<font color="' + argument + '">' + value + '</font>';
-			}
-		},
-		"code": {
-			suspendParsing: true,
-			apply: function(value, argument) {
-				return value;
-			}
-		},
-		"list": {
-			apply: function(value, argument) {
-				return '<ul>' + value + '</ul>';
-			}
-		},
-		"*": {
-			singleTag: true,
-			apply: function(value, argument) {
-				return '<li>' + value + '</li>';
-			}
-		}
-	};
-
-	var BBCodeParser = function(string, codes) {
-		this.string = string;
+	// Abstract BBCode Parser
+	var BBCodeParser = function(postData, codes, method, callback) {
+		this.postData = postData;
+		this.string = postData.content;
 
 		this.position = -1;
 		this.state = STATE_CONTENT;
@@ -68,7 +15,8 @@
 		var STATE_TOKEN_ADD = 1;
 		var STATE_TOKEN_REMOVE = 2;
 		var STATE_TOKEN_PARAMETER = 3;
-		var STATE_CONTENT = 4;
+		var STATE_TOKEN_PARAMETER_MULTIPLE = 4;
+		var STATE_CONTENT = 5;
 
 		this.bbcodes = codes;
 		this.tokens = [];
@@ -83,22 +31,76 @@
 			this.children = [];
 			this.closed = false;
 
-			this.getRawString = function() {
-				return this.parameter !== undefined ?
-					 '[' + this.token + '=' + this.parameter + ']' :
-					 '[' + this.token + ']'
+			this.applyParameters = function(paramString) {
+				this.parameters = {};
+				var pairs = paramString.split(';');
+				for (var i = 0; i < pairs.length; i++) {
+					var tokens = pairs[i].split('=');
+					this.parameters[tokens[0]] = tokens[1];
+				}
 			}
 
-			this.getString = function(codes) {
-				var buffer = "";
-				for (var i = 0; i < this.children.length; i++) {
-					buffer += this.children[i].getString(codes);
-				}
-				if (this.closed === false) {
-					return this.getRawString() + buffer;
+			this.applyParameter = function(paramString) {
+				this.parameter = paramString;
+			}
+
+			this.getRawString = function() {
+				if (this.parameter !== undefined) {
+					return '[' + this.token + '=' + this.parameter + ']';
+				} else if (this.parameters !== undefined) {
+					var keys = Object.keys(this.parameters);
+					var string = '[' + this.token + ':';
+					for (var i = 0; i < keys.length; i++) {
+						string += keys[i] + '=' + this.parameters[keys[i]];
+						if (i != keys.length - 1) string += ';';
+					}
+					return string + ']';
 				} else {
-					return codes[this.token].apply(buffer, this.parameter);
+					return '[' + this.token + ']';
 				}
+			}
+
+			this.getOwnStringRepresentation = function(value) {
+				return this.getRawString() + (value !== undefined ? value : '') + '[/' + this.token + ']';
+			}
+
+			this.getString = function(codes, parent, data, callback) {
+				var _this = this;
+				var content = "";
+				function processContent() {
+					if (_this.closed === false) {
+						callback(_this.getRawString() + content);
+					} else {
+						var bbCodeBuf = codes[_this.token];
+						if (bbCodeBuf[method] !== undefined) {
+							codes[_this.token][method]({
+								node: _this,
+								parent: parent,
+								value: content,
+								argument: _this.parameter !== undefined ? _this.parameter : _this.parameters,
+								data: data
+							}, function(result) {
+								callback(result);
+							});
+						} else {
+							callback(_this.getOwnStringRepresentation(content));
+						}
+					}
+				}
+				function iterateOverChildren(index) {
+					_this.children[index].getString(codes, _this, data, function(buffer) {
+						content += buffer;
+						if (index + 1 < _this.children.length) {
+							iterateOverChildren(index + 1);
+						} else {
+							processContent();
+						}
+					});
+				}
+				if (this.children.length > 0)
+					iterateOverChildren(0);
+				else 
+					processContent();
 			}
 		}
 		Code.prototype = Node;
@@ -107,8 +109,8 @@
 			this.type = 'string';
 			this.value = value;
 
-			this.getString = function(codes) {
-				return this.value;
+			this.getString = function(codes, parent, data, callback) {
+				callback(this.value);
 			}
 		}
 		Content.prototype = Node;
@@ -117,12 +119,20 @@
 			this.type = 'root';
 			this.children = [];
 
-			this.getString = function(codes) {
-				var buffer = "";
-				for (var i = 0; i < this.children.length; i++) {
-					buffer += this.children[i].getString(codes);
+			this.getString = function(codes, data, callback) {
+				var _this = this;
+				var content = "";
+				function iterateOverChildren(index) {
+					_this.children[index].getString(codes, _this, data, function(buffer) {
+						content += buffer;
+						if (index + 1 < _this.children.length) {
+							iterateOverChildren(index + 1);
+						} else {
+							callback(content);
+						}
+					});
 				}
-				return buffer;
+				iterateOverChildren(0);
 			}
 		}
 		Root.prototype = Node;
@@ -242,6 +252,20 @@
 							this.state = STATE_CONTENT;
 							continue;
 						}
+					} else if (this.cur() === ':') {
+						var token = this.token();
+						if (this.bbcodes[token] !== undefined) {
+							if (this.isSingleTag() && this.tokens[0].token === token) {
+								this.popTop();
+							}
+							this.pushTop(new Code(token));
+							this.storedPosition = this.position + 1;
+							this.state = STATE_TOKEN_PARAMETER_MULTIPLE;
+							continue;
+						} else {
+							this.state = STATE_CONTENT;
+							continue;
+						}	
 					} else if (this.cur() === ']') {
 						var token = this.token();
 						if (this.bbcodes[token] !== undefined) {
@@ -262,7 +286,17 @@
 				} else if (this.state === STATE_TOKEN_PARAMETER) {
 					if (this.cur() === ']') {
 						var token = this.token();
-						this.peekTop().parameter = token;
+						this.peekTop().applyParameter(token);
+						this.contentPosition = this.position + 1;
+						this.state = STATE_CONTENT;
+						continue;
+					} else {
+						continue;
+					}
+				} else if (this.state === STATE_TOKEN_PARAMETER_MULTIPLE) {
+					if (this.cur() === ']') {
+						var token = this.token();
+						this.peekTop().applyParameters(token);
 						this.contentPosition = this.position + 1;
 						this.state = STATE_CONTENT;
 						continue;
@@ -297,15 +331,273 @@
 					}
 				}
 			}
-			var result = this.tokens[this.tokens.length - 1].getString(this.bbcodes);
-			return result;
+			this.tokens[this.tokens.length - 1].getString(this.bbcodes, { postData: this.postData }, callback);
 		}
 	}
+
+	var bbCodesTable = {
+		"b": {
+			apply: function(info, callback) {
+				callback('<b>' + info.value + '</b>');
+			}
+		},
+		"i": {
+			apply: function(info, callback) {
+				callback('<i>' + info.value + '</i>');
+			}
+		},
+		"u": {
+			apply: function(info, callback) {
+				callback('<u>' + info.value + '</u>');
+			}
+		},
+		"s": {
+			apply: function(info, callback) {
+				callback('<s>' + info.value + '</s>');
+			}
+		},
+		"link": {
+			apply: function(info, callback) {
+				callback('<a href="' + info.value + '">' + (typeof argument === 'string' ? argument : info.value) + '</a>');
+			}
+		},
+		"img": {
+			apply: function(info, callback) {
+				callback('<img src="' + info.value + '"></img>');
+			}
+		},
+		"color": {
+			apply: function(info, callback) {
+				callback('<font color="' + info.argument + '">' + info.value + '</font>');
+			}
+		},
+		"code": {
+			suspendParsing: true,
+			apply: function(info, callback) {
+				callback(info.value);
+			}
+		},
+		"list": {
+			apply: function(info, callback) {
+				callback('<ul>' + info.value + '</ul>');
+			}
+		},
+		"*": {
+			singleTag: true,
+			apply: function(info, callback) {
+				if (info.parent.token === "list") {
+					callback('<li>' + info.value + '</li>');
+				}
+				if (info.parent.token === "poll") {
+					var jadeFn = jade.compileFile('node_modules/nodebb-plugin-bbcodes/templates/jade/poll-element.tpl', {});
+					callback(jadeFn({ value: info.value, argument : info.argument }));
+				}
+			}
+		},
+		"poll": {
+			apply: function(info, callback) {
+				callback("");
+				/*data.pollMainIndex = data.pollMainIndex === undefined ? 0 : data.pollMainIndex + 1; // Update current poll index
+				data.pollOptionIndex = 0; // Reset option counter to 0
+
+				data.postData.pid
+				var jadeFn = jade.compileFile('node_modules/nodebb-plugin-bbcodes/templates/jade/poll-main.tpl', {});
+				callback(jadeFn({ value: value, argument : argument !== undefined ? argument : 'Poll', id: 'poll_id' });*/
+			}
+		},
+		"aspoiler": {
+			apply: function(info, callback) {
+				var jadeFn = jade.compileFile('node_modules/nodebb-plugin-bbcodes/templates/jade/ajax-spoiler.tpl', {});
+				callback(jadeFn({ value: info.value, argument : (info.argument.name != undefined ? info.argument.name : "Spoiler"), id: info.argument.id }));
+			},
+			save: function(info, callback) {
+				if (typeof info.argument === 'object' && info.argument.id !== undefined) {
+					// We already have generated ID
+					// Check if this id related to this post
+					db.isSetMember('bbdynamic-pid:' + info.data.postData.pid, info.argument.id, function(err, result) {
+						if (result === true) {
+							// Seems legit. Update content
+							db.setObjectField('bb-ajax-spoiler:content', info.argument.id, info.value);
+							callback(info.node.getOwnStringRepresentation());
+						} else {
+							// Looks like shit, don't link existing aspoiler with new post
+							callback(info.value);
+						}
+					});					
+				} else {
+					// Generate new spoiler ID
+					generateNextDynamicID(info.data.postData.pid, function(spoilerId) {
+						// Store spoiler content in the specific table
+						db.setObjectField('bb-ajax-spoiler:content', spoilerId, info.value);
+						// Add id to code
+						if (info.node.parameters === undefined) info.node.parameters = {}; 
+						info.node.parameters.id = spoilerId;
+						// Return raw input without content
+						callback(info.node.getOwnStringRepresentation());
+					});
+				}
+			},
+			edit: function(info, callback) {
+				if (typeof info.argument === 'object' && info.argument.id !== undefined) {
+					// We already have generated ID
+					// Check if this id related to this post
+					db.isSetMember('bbdynamic-pid:' + info.data.postData.pid, info.argument.id, function(err, result) {
+						if (result == true) {
+							// Seems legit. Update content
+							db.setObjectField('bb-ajax-spoiler:content', info.argument.id, info.value);
+						}
+					});
+					info.data.postData.dinIds.push(info.argument.id);
+					// Return raw input without content
+					callback(info.node.getOwnStringRepresentation());
+				} else {
+					// Generate new spoiler ID
+					generateNextDynamicID(info.data.postData.pid, function(spoilerId) {
+						// Store spoiler content in the specific table
+						db.setObjectField('bb-ajax-spoiler:content', spoilerId, info.value);
+						// Add id to code
+						if (info.node.parameters === undefined) info.node.parameters = {}; 
+						info.node.parameters.id = spoilerId;
+						info.data.postData.dinIds.push(spoilerId);
+						// Return raw input without content
+						callback(info.node.getOwnStringRepresentation());
+					});
+				}
+			},
+			get: function(info, callback) {
+				if (typeof info.argument === 'object' && info.argument.id !== undefined) {
+					// Check if this id related to this post
+					db.isSetMember('bbdynamic-pid:' + info.data.postData.pid, info.argument.id, function(err, result) {
+						if (result == true) {
+							// Seems legit. Return content
+							db.getObjectField('bb-ajax-spoiler:content', info.argument.id, function(err, result) {
+								if (err !== null) {
+									return callback(info.node.getOwnStringRepresentation());
+								} else {
+									return callback(info.node.getOwnStringRepresentation(result));
+								}
+							});
+						} else {
+							return callback(info.node.getOwnStringRepresentation());
+						}
+					});
+				} else {
+					return callback(info.node.getOwnStringRepresentation());
+				}
+			}
+		}
+	};
 
 	var winston = require('winston'),
 		meta = module.parent.require('./meta'),
 		plugins = module.parent.require('./plugins'),
-		sanitize = true;
+		jade = require('jade'),
+		db = module.parent.require('./database'),
+		async = require('async'),
+		privileges = module.parent.require('./privileges'),
+		sanitize = true,
+		globalDynamicID = 0;
+
+
+	// Ajax spoiler
+	function ajaxSpoilerController(req, res, next) {
+		if (req.body['id'] === undefined || req.body['pid'] === undefined) {
+			return res.json({ success: false });
+		}
+		privileges.posts.can('read', req.body['pid'], req.user !== undefined ? req.user.uid : 0, function(err) {
+			if (err !== null) return res.json({ success: false });
+
+			db.isSetMember('bbdynamic-pid:' + req.body['pid'], req.body['id'], function(err, result) {
+				if (result == true) {
+					// Seems legit. Get content
+					db.getObjectField('bb-ajax-spoiler:content', req.body['id'], function(err, data) {
+						if (err !== null) {
+							return res.json({ success: false });
+						}
+						new BBCodeParser({ content: data, pid: req.body['pid'] }, bbCodesTable, 'apply', function(result) {
+							return res.json({ success: true, content: result });
+						}).parse();
+					});
+				} else {
+					return res.json({ success: false });
+				}
+			});
+		});	
+	}
+
+	function generateNextDynamicID(pid, callback) {
+		var newDynID = globalDynamicID++;
+		async.waterfall([
+				function(next) {
+					db.set('bbcodes-dynamic-id', globalDynamicID, next);
+				},
+				function(next) {
+					db.setAdd('bbdynamic-pid:' + pid, newDynID, next);
+				}
+			], function(err, result) {
+				if (callback !== undefined) {
+					callback(newDynID);
+				}
+			}
+		);
+		return newDynID;
+	}
+
+	// plugins.fireHook('filter:post.save', postData, next);
+	module.exports.onPostSave = function(postData, next) {
+		// Parse dynamic tags and store ID's in the tag
+		new BBCodeParser(postData, bbCodesTable, 'save', function(result) {
+			postData.content = result;
+			next(null, postData);
+		}).parse();
+	};
+
+	// plugins.fireHook('filter:post.edit', {post: postData, uid: data.uid}, next);
+	module.exports.onPostEdit = function(data, next) {
+		// Check if stored ID's changes and perform cleanup if needed
+		var extendedObj = { content: data.post.content, pid: data.post.pid, dinIds: new Array() };
+		new BBCodeParser(extendedObj, bbCodesTable, 'edit', function(result) {
+			// Cleanup
+			db.getSetMembers('bbdynamic-pid:' + data.post.pid, function(err, values) {
+				if (err === null) {
+					for (var i in values) {
+						if (extendedObj.dinIds.indexOf(values[i]) < 0) {
+							// Should remove this content
+							winston.info("Content should be removed: " + values[i]);
+							db.setRemove('bbdynamic-pid:' + data.post.pid, values[i]);
+						}
+					}
+				}
+			});
+			data.post.content = result;
+			next(null, data);
+		}).parse();
+	};
+
+	// plugins.fireHook('filter:post.getFields', {posts: [data], fields: fields}, next)
+	module.exports.onPostGetFields = function(data, next) {
+		// Check if stored ID's changes and perform cleanup if needed
+		// Let's try to detect composer's request. 
+		// This is fcking hook but we will watch for fields=[content, tid, uid, handle]
+		// Assuming that this request is from composer
+		if (data.fields.indexOf("content") >= 0
+			&& data.fields.indexOf("tid") >= 0
+			&& data.fields.indexOf("tid") >= 0
+			&& data.fields.indexOf("handle") >= 0) {
+			new BBCodeParser(data.posts[0], bbCodesTable, 'get', function(result) {
+				data.posts[0].content = result;
+				next(null, data);
+			}).parse();
+		} else {
+			next(null, data);
+		}
+	};
+
+	// plugins.fireHook('action:post.purge', pid);
+	module.exports.onPostPurge = function(pid) {
+		// Cleanup all related dynamic data
+		db.delete('bbdynamic-pid:' + pid);
+	};
 
 	module.exports.parse = function(data, callback) {
 		if (!data || !data.postData || !data.postData.content) {
@@ -314,8 +606,11 @@
 		if (sanitize) {
 			data.postData.content= data.postData.content.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br />");
 		}
-		data.postData.content = new BBCodeParser(data.postData.content, defaultCodes).parse();
-		callback(null, data);
+		new BBCodeParser(data.postData, bbCodesTable, 'apply', function(result) {
+			data.postData.content = result;
+			callback(null, data);
+		}).parse();
+		
 	};
 
 	function adminPanelController(req, res, next) {
@@ -323,11 +618,26 @@
 	};
 	
 	module.exports.load = function(app, next) {
+		// Load globalDynamicID
+		db.get('bbcodes-dynamic-id', function(err, value) {
+			if (err != null || parseInt(value, 10).toString() === 'NaN') {
+				// First run or errors
+				db.set('bbcodes-dynamic-id', 0);
+				globalDynamicID = 0;
+				winston.info('Resetting globalDynamicID: ' + globalDynamicID);
+			} else {
+				globalDynamicID = parseInt(value, 10);
+				winston.info('Loaded globalDynamicID: ' + globalDynamicID);
+			}
+		});
 		// Fire hook to collect extensions
-		plugins.fireHook('static:plugin-bbcodes-load', { codeTable: defaultCodes });
+		plugins.fireHook('static:plugin-bbcodes-load', { codeTable: bbCodesTable });
 		// Bind admin panel url
 		app.router.get('/admin/plugins/bbcodes', app.middleware.admin.buildHeader, adminPanelController);
 		app.router.get('/api/admin/plugins/bbcodes', adminPanelController);
+
+		// Ajax Spoiler
+		app.router.post('/api/bbcodes/getSpoilerContent', ajaxSpoilerController);
 
 		meta.configs.getFields(['bbcodes-sanitize'], function(err, config) {
 			if (config && config["bbcodes-sanitize"]) {
