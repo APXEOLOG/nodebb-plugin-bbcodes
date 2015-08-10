@@ -20,6 +20,9 @@
   "bugs": {
     "url": "https://github.com/APXEOLOG/nodebb-plugin-bbcodes/issues"
   },
+  "dependencies": {
+    "jade": "~1.11.0"
+  },
   "homepage": "https://github.com/APXEOLOG/nodebb-plugin-bbcodes",
   "scripts": {},
   "nbbpm": {
