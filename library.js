@@ -403,7 +403,7 @@
 		},
 		"img": {
 			apply: function(info, callback) {
-				callback('<img src="' + info.value + '"></img>');
+				callback('<img style="max-width: 100%;" src="' + info.value + '"></img>');
 			}
 		},
 		"color": {
@@ -425,6 +425,11 @@
 					callback('<ul>' + info.value + '</ul>');
 			}
 		},
+		"video": {
+			apply: function(info, callback) {
+				callback('<div><iframe frameborder="0" id="ytplayer" type="text/html" width="640" height="390" src="http://www.youtube.com/embed/' + info.value + '"></iframe></div>');
+			}
+		},
 		"*": {
 			apply: function(info, callback) {
 				if (info.parent.token === "list") {
@@ -438,7 +443,7 @@
 		},
 		"quote": {
 			apply: function(info, callback) {
-				callback("<p>" + info.argument + " said: </p><blockquote>" + info.value + "</blockquote>");
+				callback((info.argument !== undefined ? "<p>" + info.argument + " said: </p>" : "") + "<blockquote>" + info.value + "</blockquote>");
 			}
 		},
 		"spoiler": {

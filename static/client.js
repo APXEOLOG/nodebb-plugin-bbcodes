@@ -53,7 +53,7 @@ $(document).ready(function() {
 			textarea = postContainer.find('#wysibb-editor');
 
 		window.WysiBB = textarea.wysibb({
-			buttons: "bold,italic,underline,strike,|,img,video,link,|,bullist,numlist,|,fontcolor,fontsize,fontfamily,|,justifyleft,justifycenter,justifyright,|,quote,code,table",
+			buttons: "bold,italic,underline,strike,|,img,video,link,|,bullist,numlist,|,fontcolor,fontsize,|,justifyleft,justifycenter,justifyright,|,quote,code,table",
 			allButtons: {
 				quote: {
 					title: 'Quote',
