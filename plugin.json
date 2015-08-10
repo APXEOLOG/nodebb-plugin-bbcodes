@@ -32,7 +32,24 @@
 		"static": "./static"
 	},
 	"scripts": [
-		"static/buttons.js"
+		"./static/client.js",
+		"./static/jquery.wysibb.js",
+		"./static/buttons.js",
+		"../nodebb-plugin-composer-default/static/lib/composer.js",
+		"../nodebb-plugin-composer-default/static/lib/composer/categoryList.js",
+		"../nodebb-plugin-composer-default/static/lib/composer/controls.js",
+		"../nodebb-plugin-composer-default/static/lib/composer/drafts.js",
+		"../nodebb-plugin-composer-default/static/lib/composer/formatting.js",
+		"../nodebb-plugin-composer-default/static/lib/composer/preview.js",
+		"../nodebb-plugin-composer-default/static/lib/composer/resize.js",
+		"../nodebb-plugin-composer-default/static/lib/composer/tags.js",
+		"../nodebb-plugin-composer-default/static/lib/composer/uploads.js"
+	],
+	"less": [
+		"../nodebb-plugin-composer-default/static/less/composer.less"
+	],
+	"css": [
+		"./static/css/wbbtheme.css"
 	],
 	"nbbpm": {
         "compatibility": "^0.7.0"

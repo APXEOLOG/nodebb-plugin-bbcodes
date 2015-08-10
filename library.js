@@ -495,8 +495,43 @@
 		db = module.parent.require('./database'),
 		async = require('async'),
 		privileges = module.parent.require('./privileges'),
+
 		sanitize = true,
 		globalDynamicID = 0;
+
+	/* ============================================ */
+	/* 			WysiBB Composer Integration			*/
+	/* ============================================ */
+
+	var defaultComposer = require.main.require('nodebb-plugin-composer-default'),
+		SocketPlugins = require.main.require('./src/socket.io/plugins');
+
+	function composerInit() {
+		if (true) { // TODO: Check
+			SocketPlugins.composer = defaultComposer.socketMethods;
+		} else {
+			winston.warn('[bbcodes] Another composer plugin is active! Please disable all other composers.');
+		}
+	}
+
+	function checkCompatibility(callback) {
+		async.parallel({
+			active: async.apply(plugins.getActive),
+			markdown: async.apply(meta.settings.get, 'markdown')
+		}, function(err, data) {
+			callback(null, {
+				markdown: data.active.indexOf('nodebb-plugin-markdown') === -1 || data.markdown.html === 'on',
+				//			^ plugin disabled										^ HTML sanitization disabled
+				composer: data.active.filter(function(plugin) {
+					return plugin.startsWith('nodebb-plugin-composer-') && plugin !== 'nodebb-plugin-composer-redactor';
+				}).length === 0
+			})
+		});
+	};
+
+	/* ============================================ */
+	/* ============================================ */
+	/* ============================================ */
 
 
 	// Ajax spoiler
@@ -638,6 +673,8 @@
 
 		// Ajax Spoiler
 		app.router.post('/api/bbcodes/getSpoilerContent', ajaxSpoilerController);
+
+		composerInit();
 
 		meta.configs.getFields(['bbcodes-sanitize'], function(err, config) {
 			if (config && config["bbcodes-sanitize"]) {
