@@ -35,7 +35,7 @@
 		"./static/client.js",
 		"./static/jquery.wysibb.js",
 		"./static/buttons.js",
-		"../nodebb-plugin-composer-default/static/lib/composer.js",
+		"./static/composer.js",
 		"../nodebb-plugin-composer-default/static/lib/composer/categoryList.js",
 		"../nodebb-plugin-composer-default/static/lib/composer/controls.js",
 		"../nodebb-plugin-composer-default/static/lib/composer/drafts.js",

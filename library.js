@@ -356,6 +356,46 @@
 				callback('<s>' + info.value + '</s>');
 			}
 		},
+		"table": {
+			apply: function(info, callback) {
+				callback('<table>' + info.value + '</table>');
+			}
+		},
+		"tr": {
+			apply: function(info, callback) {
+				callback('<tr>' + info.value + '</tr>');
+			}
+		},
+		"td": {
+			apply: function(info, callback) {
+				callback('<td>' + info.value + '</td>');
+			}
+		},
+		"size": {
+			apply: function(info, callback) {
+				callback('<font size="' + info.argument + '">' + info.value + '</s>');
+			}
+		},
+		"font": {
+			apply: function(info, callback) {
+				callback('<font face="' + info.argument + '">' + info.value + '</s>');
+			}
+		},
+		"center": {
+			apply: function(info, callback) {
+				callback('<p style="text-align:center">' + info.value + '</p>');
+			}
+		},
+		"left": {
+			apply: function(info, callback) {
+				callback('<p style="text-align:left">' + info.value + '</p>');
+			}
+		},
+		"right": {
+			apply: function(info, callback) {
+				callback('<p style="text-align:right">' + info.value + '</p>');
+			}
+		},
 		"link": {
 			apply: function(info, callback) {
 				callback('<a href="' + info.value + '">' + (typeof argument === 'string' ? argument : info.value) + '</a>');
@@ -374,16 +414,18 @@
 		"code": {
 			suspendParsing: true,
 			apply: function(info, callback) {
-				callback(info.value);
+				callback('<code>' + info.value + '</code>');
 			}
 		},
 		"list": {
 			apply: function(info, callback) {
-				callback('<ul>' + info.value + '</ul>');
+				if (info.argument === "1") {
+					callback('<ol>' + info.value + '</ol>');
+				} else
+					callback('<ul>' + info.value + '</ul>');
 			}
 		},
 		"*": {
-			singleTag: true,
 			apply: function(info, callback) {
 				if (info.parent.token === "list") {
 					callback('<li>' + info.value + '</li>');
@@ -392,6 +434,17 @@
 					var jadeFn = jade.compileFile('node_modules/nodebb-plugin-bbcodes/templates/jade/poll-element.tpl', {});
 					callback(jadeFn({ value: info.value, argument : info.argument }));
 				}
+			}
+		},
+		"quote": {
+			apply: function(info, callback) {
+				callback("<p>" + info.argument + " said: </p><blockquote>" + info.value + "</blockquote>");
+			}
+		},
+		"spoiler": {
+			apply: function(info, callback) {
+				var jadeFn = jade.compileFile('node_modules/nodebb-plugin-bbcodes/templates/jade/spoiler.tpl', {});
+				callback(jadeFn({ value: info.value, argument : (info.argument != undefined ? info.argument : "Spoiler") }));
 			}
 		},
 		"poll": {
@@ -484,7 +537,7 @@
 				} else {
 					return callback(info.node.getOwnStringRepresentation());
 				}
-			}
+			},
 		}
 	};
 
@@ -502,13 +555,9 @@
 	/* ============================================ */
 	/* 			WysiBB Composer Integration			*/
 	/* ============================================ */
-
-	var defaultComposer = require.main.require('nodebb-plugin-composer-default'),
-		SocketPlugins = require.main.require('./src/socket.io/plugins');
-
 	function composerInit() {
 		if (true) { // TODO: Check
-			SocketPlugins.composer = defaultComposer.socketMethods;
+			require('nodebb-plugin-composer-default').init({}, function(){});
 		} else {
 			winston.warn('[bbcodes] Another composer plugin is active! Please disable all other composers.');
 		}
