@@ -485,7 +485,27 @@
 					return callback(info.node.getOwnStringRepresentation());
 				}
 			}
-		}
+		},
+	        "left": {
+	            apply: function (info, callback) {
+	                return callback('<span style="text-align: left">' + info.value + '</span>');
+	            }
+	        },
+	        "center": {
+	            apply: function (info, callback) {
+	                return callback('<span style="text-align: center">' + info.value + '</span>');
+	            }
+	        },
+	        "right": {
+	            apply: function (info, callback) {
+	                return callback('<span style="text-align: right">' + info.value + '</span>');
+	            }
+	        },
+	        "url": {
+	            apply: function (info, callback) {
+	                return callback('<a href="' + info.argument + '">' + info.value + '</span>');
+	            }
+	        },
 	};
 
 	var winston = require('winston'),
