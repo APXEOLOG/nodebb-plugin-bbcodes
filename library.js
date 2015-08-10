@@ -376,11 +376,11 @@
 				callback('<font size="' + info.argument + '">' + info.value + '</s>');
 			}
 		},
-		/*"font": {
+		"font": {
 			apply: function(info, callback) {
-				callback('<font face="' + info.argument + '">' + info.value + '</s>');
+				callback('<span style="font-family:' + info.argument + '">' + info.value + '</span>');
 			}
-		},*/
+		},
 		"center": {
 			apply: function(info, callback) {
 				callback('<p style="text-align:center">' + info.value + '</p>');
