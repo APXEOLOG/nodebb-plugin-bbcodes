@@ -26,6 +26,10 @@
 
 .wysibb-body{
   overflow-x: auto !important;
+  -moz-user-select: text;
+  -khtml-user-select: text;
+  -webkit-user-select: text;
+  -o-user-select: text;
 }
 .wysibb-body ul,.wysibb-body ol{padding:0 0 0 30px}
 .wysibb-texarea,.wysibb-texarea:active{

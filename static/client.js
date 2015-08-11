@@ -53,11 +53,11 @@ $(document).ready(function() {
 			textarea = postContainer.find('#wysibb-editor');
 
 		window.WysiBB = textarea.wysibb({
-			buttons: "bold,italic,underline,strike,|,img,video,link,|,bullist,numlist,|,fontcolor,fontsize,fontfamily,|,justifyleft,justifycenter,justifyright,|,quote,code,table",
+			buttons: "bold,italic,underline,strike,|,img,video,link,|,bullist,numlist,|,fontcolor,fontsize,fontfamily,|,justifyleft,justifycenter,justifyright,|,quote,code,table,spoiler",
 			allButtons: {
 				quote: {
 					title: 'Quote',
-					buttonText: 'quote',
+					buttonText: 'Quote',
 					transform: {
 						'<blockquote>{SELTEXT}</blockquote>':"[quote]{SELTEXT}[/quote]",
 						'<p>{AUTHOR} said:</p><blockquote>{SELTEXT}</blockquote>':'[quote={AUTHOR}]{SELTEXT}[/quote]'
@@ -65,7 +65,7 @@ $(document).ready(function() {
 				},
 				spoiler: {
 					title: 'Spoiler',
-					buttonText: 'spoiler',
+					buttonText: 'Spoiler',
 					transform: {
 						'<div class="panel panel-default"><div class="panel-heading"><button type="button" onclick="$(this).parent().next().collapse(\'toggle\');" class="btn btn-default btn-xs btn-ajx-spoiler" data-toggle="collapse">Spoiler</button></div><div class="panel-collapse collapse out"><div class="panel-body">{SELTEXT}</div></div></div>':"[spoiler]{SELTEXT}[/spoiler]",
 						'<div class="panel panel-default"><div class="panel-heading"><button type="button" onclick="$(this).parent().next().collapse(\'toggle\');" class="btn btn-default btn-xs btn-ajx-spoiler" data-toggle="collapse">{NAME}</button></div><div class="panel-collapse collapse out"><div class="panel-body">{SELTEXT}</div></div></div>':"[spoiler={NAME}]{SELTEXT}[/spoiler]"
