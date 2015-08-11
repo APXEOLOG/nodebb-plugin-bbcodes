@@ -566,11 +566,13 @@
 	/* 			WysiBB Composer Integration			*/
 	/* ============================================ */
 	function composerInit() {
-		if (true) { // TODO: Check
-			require('nodebb-plugin-composer-default').init({}, function(){});
-		} else {
-			winston.warn('[bbcodes] Another composer plugin is active! Please disable all other composers.');
-		}
+		checkCompatibility(function(err, checks) {
+			if (checks.composer) {
+				require('nodebb-plugin-composer-default').init({}, function(){});
+			} else {
+				winston.warn('[plugin/composer-redactor] Another composer plugin is active! Please disable all other composers.');
+			}
+		});
 	}
 
 	function checkCompatibility(callback) {
@@ -582,7 +584,7 @@
 				markdown: data.active.indexOf('nodebb-plugin-markdown') === -1 || data.markdown.html === 'on',
 				//			^ plugin disabled										^ HTML sanitization disabled
 				composer: data.active.filter(function(plugin) {
-					return plugin.startsWith('nodebb-plugin-composer-') && plugin !== 'nodebb-plugin-composer-redactor';
+					return plugin.startsWith('nodebb-plugin-composer');
 				}).length === 0
 			})
 		});
@@ -708,7 +710,11 @@
 	};
 
 	function adminPanelController(req, res, next) {
-		res.render('bbcodes-admin', { });
+		checkCompatibility(function(err, checks) {
+			res.render('bbcodes-admin', {
+				checks: checks
+			});
+		});
 	};
 	
 	module.exports.load = function(app, next) {
