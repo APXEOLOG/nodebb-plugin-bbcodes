@@ -398,12 +398,12 @@
 		},
 		"link": {
 			apply: function(info, callback) {
-				callback('<a href="' + info.value + '">' + (typeof info.argument === 'string' ? info.argument : info.value) + '</a>');
+				callback('<a href="' + info.argument + '">' + (typeof info.argument !== 'string' ? info.argument : info.value) + '</a>');
 			}
 		},
 		"url": {
             apply: function (info, callback) {
-                callback('<a href="' + info.value + '">' + (typeof info.argument === 'string' ? info.argument : info.value) + '</a>');
+                callback('<a href="' + info.argument + '">' + (typeof info.argument !== 'string' ? info.argument : info.value) + '</a>');
             }
         },
 		"img": {
