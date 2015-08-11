@@ -40,7 +40,7 @@ $(document).ready(function() {
 
 			$(window).on('action:composer.addQuote', function(ev, data) {
 				var rawText = data.text.replace(/\n> /g, '\n').substring(2);
-				var bbCodedText = '[quote=' + data.username.substring(1) + ']' + rawText.substring(0, rawText.length - 2) + '[/quote]';
+				var bbCodedText = '[quote=' + (data.username.indexOf('@') === 0 ? data.username.substring(1) : data.username) + ']' + rawText.substring(0, rawText.length - 2) + '[/quote]';
 				var topicUUID = composer.findByTid(data.tid);
 				composer.addQuote(data.tid, data.slug, data.index, data.pid, data.topicName, data.username, bbCodedText, topicUUID);
 			});
