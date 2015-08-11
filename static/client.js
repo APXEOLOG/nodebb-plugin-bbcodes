@@ -81,9 +81,8 @@ $(document).ready(function() {
 
 	$(window).on('action:composer.resize', function(ev, data) {
 		require(['composer'], function(composer) {
-			// Additional values, since composer.tpl was changed
-			$('.wysibb-text-editor').css('min-height', data.containerHeight + 60);
-			$('.wysibb-text-editor').css('max-height', data.containerHeight + 60);
+			$('.wysibb-text-editor').css('min-height', data.containerHeight);
+			$('.wysibb-text-editor').css('max-height', data.containerHeight);
 		});
 	});
 });
