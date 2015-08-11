@@ -16,11 +16,17 @@ Composer preview:
 
 Ajax spoiler tag:
 Spoiler content is loaded only when button is clicked. Note, that after you save the post first time, each aspoiler tag will have it's own id. Don't remove or change it manually or you will loose it's content.
+
 Syntax example:
+
 `[aspoiler]Something![/aspoiler]` - default
+
 `[aspoiler:name=Spoiler Name!]Content[/aspoiler]` - named spoiler
+
 `[aspoiler:name=Spoiler Name!;id=1234]Content[/aspoiler]` - this is what you will see, when you'll try to edit it. 
+
 Perview GIF: http://i.imgur.com/IioJxsk.gifv
+
 
 
 Old releases:
