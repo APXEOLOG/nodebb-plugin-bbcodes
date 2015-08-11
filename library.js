@@ -448,7 +448,7 @@
 		},
 		"quote": {
 			apply: function(info, callback) {
-				callback((info.argument !== undefined ? "<p>" + info.argument + " said: </p>" : "") + "<blockquote>" + info.value + "</blockquote>");
+				callback((info.argument !== undefined ? "<p>@" + info.argument + " said: </p>" : "") + "<blockquote>" + info.value + "</blockquote>");
 			}
 		},
 		"spoiler": {

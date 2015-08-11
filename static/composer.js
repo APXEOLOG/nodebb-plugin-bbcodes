@@ -1,3 +1,5 @@
+// From nodebb-plugin-composer-default plugin
+
 'use strict';
 
 /* globals define, socket, app, config, ajaxify, utils, templates, bootbox */
@@ -163,7 +165,6 @@ define('composer', [
 	};
 
 	composer.addQuote = function(tid, topicSlug, postIndex, pid, title, username, text, uuid) {
-		console.log("PEW PEW ZZ TEST");
 		uuid = uuid || composer.active;
 
 		if (uuid === undefined) {
