@@ -373,7 +373,7 @@
 		},
 		"size": {
 			apply: function(info, callback) {
-				callback('<font size="' + info.argument + '">' + info.value + '</s>');
+				callback('<font size="' + info.argument + '">' + info.value + '</font>');
 			}
 		},
 		"font": {
