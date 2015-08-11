@@ -801,9 +801,9 @@ wbbdebug=true;
 				this.body = this.$body[0];
 				this.$txtArea.hide();
 				
-				if (height>32) {
+				/*if (height>32) {
 					this.$toolbar.css("max-height",height);
-				}
+				}*/
 				
 				$.log("WysiBB loaded");
 				
