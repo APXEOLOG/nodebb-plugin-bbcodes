@@ -398,9 +398,14 @@
 		},
 		"link": {
 			apply: function(info, callback) {
-				callback('<a href="' + info.value + '">' + (typeof argument === 'string' ? argument : info.value) + '</a>');
+				callback('<a href="' + info.value + '">' + (typeof info.argument === 'string' ? info.argument : info.value) + '</a>');
 			}
 		},
+		"url": {
+            apply: function (info, callback) {
+                callback('<a href="' + info.value + '">' + (typeof info.argument === 'string' ? info.argument : info.value) + '</a>');
+            }
+        },
 		"img": {
 			apply: function(info, callback) {
 				callback('<img style="max-width: 100%;" src="' + info.value + '"></img>');
@@ -542,7 +547,7 @@
 				} else {
 					return callback(info.node.getOwnStringRepresentation());
 				}
-			},
+			}
 		}
 	};
 
