@@ -53,24 +53,24 @@ $(document).ready(function() {
 			textarea = postContainer.find('#wysibb-editor');
 
 		window.WysiBB = textarea.wysibb({
-			buttons: "bold,italic,underline,strike,|,img,video,link,|,bullist,numlist,|,fontcolor,fontsize,fontfamily,|,justifyleft,justifycenter,justifyright,|,quote,code,table,spoiler",
+			buttons: "bold,italic,underline,strike,|,img,video,link,|,bullist,numlist,|,fontcolor,fontsize,fontfamily,|,justifyleft,justifycenter,justifyright,|,quote,code,table",
 			allButtons: {
 				quote: {
 					title: 'Quote',
 					buttonText: 'Quote',
 					transform: {
 						'<blockquote>{SELTEXT}</blockquote>':"[quote]{SELTEXT}[/quote]",
-						'<p>{AUTHOR} said:</p><blockquote>{SELTEXT}</blockquote>':'[quote={AUTHOR}]{SELTEXT}[/quote]'
+						'<p>@{AUTHOR} said:</p><blockquote>{SELTEXT}</blockquote>':'[quote={AUTHOR}]{SELTEXT}[/quote]'
 					}
-				},
+				}/*,
 				spoiler: {
 					title: 'Spoiler',
 					buttonText: 'Spoiler',
 					transform: {
-						'<div class="panel panel-default"><div class="panel-heading"><button type="button" onclick="$(this).parent().next().collapse(\'toggle\');" class="btn btn-default btn-xs btn-ajx-spoiler" data-toggle="collapse">Spoiler</button></div><div class="panel-collapse collapse out"><div class="panel-body">{SELTEXT}</div></div></div>':"[spoiler]{SELTEXT}[/spoiler]",
-						'<div class="panel panel-default"><div class="panel-heading"><button type="button" onclick="$(this).parent().next().collapse(\'toggle\');" class="btn btn-default btn-xs btn-ajx-spoiler" data-toggle="collapse">{NAME}</button></div><div class="panel-collapse collapse out"><div class="panel-body">{SELTEXT}</div></div></div>':"[spoiler={NAME}]{SELTEXT}[/spoiler]"
+						'<div class="panel panel-default"><div class="panel-heading"><button type="button" onclick="$(this).parent().next().collapse(\'toggle\');" class="btn btn-default btn-xs btn-ajx-spoiler" data-toggle="collapse">Spoiler</button></div><div class="panel-collapse collapse out"><div class="panel-body">{SELTEXT}</div></div></div>':'[spoiler]{SELTEXT}[/spoiler]',
+						'<div class="panel panel-default"><div class="panel-heading"><button type="button" onclick="$(this).parent().next().collapse(\'toggle\');" class="btn btn-default btn-xs btn-ajx-spoiler" data-toggle="collapse">{NAME}</button></div><div class="panel-collapse collapse out"><div class="panel-body">{SELTEXT}</div></div></div>':'[spoiler={NAME}]{SELTEXT}[/spoiler]'
 					}
-				}
+				}*/
 			}
 		});
 		// Prebind 'Submit' method to sync textarea with html content 
@@ -81,8 +81,8 @@ $(document).ready(function() {
 
 	$(window).on('action:composer.resize', function(ev, data) {
 		require(['composer'], function(composer) {
-			$('.wysibb-text-editor').css('min-height', data.containerHeight);
-			$('.wysibb-text-editor').css('max-height', data.containerHeight);
+			$('.wysibb-text-editor').css('min-height', data.containerHeight + 60);
+			$('.wysibb-text-editor').css('max-height', data.containerHeight + 60);
 		});
 	});
 });
