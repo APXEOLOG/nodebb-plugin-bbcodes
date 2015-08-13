@@ -703,7 +703,6 @@
 		if (sanitize) {
 			data.postData.content= data.postData.content.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br />");
 		}
-		data.postData.content = converter.convertMarkdownToBBCodes(data.postData.content);
 
 		new BBCodeParser(data.postData, bbCodesTable, 'apply', function(result) {
 			data.postData.content = result;
@@ -721,8 +720,7 @@
 	};
 
 	var converter = require('./bbcodes/converter'),
-		user = module.parent.require('./user'),
-		posts = module.parent.require('./posts');
+		user = module.parent.require('./user');
 
 	function convertDBController(req, res, next) {
 		user.isAdministrator(req.user !== undefined ? req.user.uid : 0, function(err, result) {
@@ -736,19 +734,24 @@
 						allPids = pids.map(function(pid) {
 							return 'post:' + pid;
 						});
-						db.getObjectsFields(allPids, fields, next);
-
-						allPids = pids;
-						posts.getPostsFields(pids, 'content', next);
+						winston.info('[BBCodes] Converting Makrdown -> BBCodes, found ' + allPids.length + ' posts');
+						db.getObjectsFields(allPids, ['content'], next);
 					},
-					function(contents, next) {
-
+					function(data, next) {
+						for (var i = 0; i < data.length; i++) {
+							if (data[i].content === undefined || data[i].content === null) continue;
+							db.setObjectField(allPids[i], 'content', converter.convertMarkdownToBBCodes(data[i].content));
+						}
+						next(null);
 					}
-				], function(err, result) {
-
-				})
-				
-				return res.json({ success: true });
+				], function(err) {
+					if (err !== null) {
+						winston.info('[BBCodes] Error while converting DB: ' + err);
+						return res.json({ success: false });
+					}
+					winston.info('[BBCodes] DB Converted successfully!');
+					return res.json({ success: true });
+				});
 			} else {
 				return res.json({ success: false });
 			}
@@ -778,7 +781,7 @@
 		app.router.post('/api/bbcodes/getSpoilerContent', ajaxSpoilerController);
 
 		// DB Conversion
-		app.router.post('/api/bbcodes/convertDB', convertDBController);
+		app.router.get('/api/bbcodes/convertDB', convertDBController);
 
 		composerInit();
 

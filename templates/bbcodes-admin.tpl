@@ -6,15 +6,28 @@
 			});
 
 			$('#convertDB').click(function() {
-				$.post('/api/bbcodes/getSpoilerContent', { id: spoilerId, pid: pid }, function(data) {
-					spoilerHeader.find('.ajax-spoiler-spin').addClass('hidden');
+				$('#convertDB').attr('disabled', true);
+				$('#convertDB').html('<i class="fa fa-spinner fa-spin"></i>');
+				$.get('/api/bbcodes/convertDB', function(data) {
 					if (data.success === true) {
-						spoilerHeader.find(".panel-body").html(data.content);
-						spoilerHeader.find(".panel-collapse").toggle();
-						spoilerButton.attr('sync', 'true');
+						app.alert({
+							alert_id: 'config_status',
+							timeout: 2500,
+							title: 'Markdown -> BBCodes',
+							message: 'DB Converted successfully!',
+							type: 'success'
+						});
 					} else {
-						spoilerHeader.find('.ajax-spoiler-error').removeClass('hidden');
+						app.alert({
+							alert_id: 'config_status',
+							timeout: 2500,
+							title: 'Markdown -> BBCodes',
+							message: 'Unexpected error. Check log for more details...',
+							type: 'danger'
+						});
 					}
+					$('#convertDB').attr('disabled', false);
+					$('#convertDB').html('Convert DB');
 				}, "json");
 			});
 		});
