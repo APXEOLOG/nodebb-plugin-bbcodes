@@ -4,6 +4,19 @@
 			require(['admin/settings'], function(settings) {
 				settings.prepare();
 			});
+
+			$('#convertDB').click(function() {
+				$.post('/api/bbcodes/getSpoilerContent', { id: spoilerId, pid: pid }, function(data) {
+					spoilerHeader.find('.ajax-spoiler-spin').addClass('hidden');
+					if (data.success === true) {
+						spoilerHeader.find(".panel-body").html(data.content);
+						spoilerHeader.find(".panel-collapse").toggle();
+						spoilerButton.attr('sync', 'true');
+					} else {
+						spoilerHeader.find('.ajax-spoiler-error').removeClass('hidden');
+					}
+				}, "json");
+			});
 		});
 	</script>
 	<div class="col-lg-9">
@@ -57,6 +70,13 @@
 						<!-- ENDIF checks.composer -->
 					</li>
 				</ul>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">Markdown -> BBCode Conversion</div>
+			<div class="panel-body">
+				<button class="btn btn-primary btn-md" id="convertDB">Convert DB</button>
+				<span class="help-block">Please, make backup of your DB before using this option. Converter is not ideal, but it will work in most cases.</span>
 			</div>
 		</div>
 	</div>

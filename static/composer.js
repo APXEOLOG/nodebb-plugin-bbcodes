@@ -13,9 +13,8 @@ define('composer', [
 	'composer/drafts',
 	'composer/tags',
 	'composer/categoryList',
-	'composer/preview',
 	'composer/resize'
-], function(taskbar, translator, controls, uploads, formatting, drafts, tags, categoryList, preview, resize) {
+], function(taskbar, translator, controls, uploads, formatting, drafts, tags, categoryList, resize) {
 	var composer = {
 		active: undefined,
 		posts: {},
@@ -181,21 +180,6 @@ define('composer', [
 		composer.posts[uuid].body = (prevText.length ? prevText + '\n' : '') + text;
 		bodyEl.val(composer.posts[uuid].body);
 		focusElements(postContainer);
-		preview.render(postContainer);
-
-		/*if (parseInt(tid, 10) !== parseInt(composer.posts[uuid].tid, 10)) {
-			var link = '[' + title + '](/topic/' + topicSlug + '/' + (parseInt(postIndex, 10) + 1) + ')';
-			translator.translate('[[modules:composer.user_said_in, ' + username + ', ' + link + ']]\n', config.defaultLang, onTranslated);
-		} else {
-			translator.translate('[[modules:composer.user_said, ' + username + ']]\n', config.defaultLang, onTranslated);
-		}
-
-		function onTranslated(translated) {
-			composer.posts[uuid].body = (prevText.length ? prevText + '\n\n' : '') + translated + text;
-			bodyEl.val(composer.posts[uuid].body);
-			focusElements(postContainer);
-			preview.render(postContainer);
-		}*/
 	};
 
 	composer.newReply = function(tid, pid, title, text) {
@@ -343,7 +327,6 @@ define('composer', [
 					draft = drafts.getDraft(postData.save_id),
 					submitBtn = postContainer.find('.composer-submit');
 
-				preview.handleToggler(postContainer);
 				tags.init(postContainer, composer.posts[post_uuid]);
 				categoryList.init(postContainer, composer.posts[post_uuid]);
 
@@ -411,19 +394,9 @@ define('composer', [
 					}
 				});
 
-				bodyEl.on('input propertychange', function() {
-					preview.render(postContainer);
-				});
-
-				bodyEl.on('scroll', function() {
-					preview.matchScroll(postContainer);
-				});
 
 				bodyEl.val(draft ? draft : postData.body);
 
-				preview.render(postContainer, function() {
-					preview.matchScroll(postContainer);
-				});
 
 				drafts.init(postContainer, postData);
 

@@ -558,6 +558,7 @@
 		db = module.parent.require('./database'),
 		async = require('async'),
 		privileges = module.parent.require('./privileges'),
+		
 
 		sanitize = true,
 		globalDynamicID = 0;
@@ -702,6 +703,8 @@
 		if (sanitize) {
 			data.postData.content= data.postData.content.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br />");
 		}
+		data.postData.content = converter.convertMarkdownToBBCodes(data.postData.content);
+
 		new BBCodeParser(data.postData, bbCodesTable, 'apply', function(result) {
 			data.postData.content = result;
 			callback(null, data);
@@ -715,6 +718,41 @@
 				checks: checks
 			});
 		});
+	};
+
+	var converter = require('./bbcodes/converter'),
+		user = module.parent.require('./user'),
+		posts = module.parent.require('./posts');
+
+	function convertDBController(req, res, next) {
+		user.isAdministrator(req.user !== undefined ? req.user.uid : 0, function(err, result) {
+			if (result === true) {
+				var allPids;
+				async.waterfall([
+					function(next) {
+						db.getSortedSetRange('posts:pid', 0, -1, next);
+					},
+					function(pids, next) {
+						allPids = pids.map(function(pid) {
+							return 'post:' + pid;
+						});
+						db.getObjectsFields(allPids, fields, next);
+
+						allPids = pids;
+						posts.getPostsFields(pids, 'content', next);
+					},
+					function(contents, next) {
+
+					}
+				], function(err, result) {
+
+				})
+				
+				return res.json({ success: true });
+			} else {
+				return res.json({ success: false });
+			}
+		})
 	};
 	
 	module.exports.load = function(app, next) {
@@ -738,6 +776,9 @@
 
 		// Ajax Spoiler
 		app.router.post('/api/bbcodes/getSpoilerContent', ajaxSpoilerController);
+
+		// DB Conversion
+		app.router.post('/api/bbcodes/convertDB', convertDBController);
 
 		composerInit();
 
