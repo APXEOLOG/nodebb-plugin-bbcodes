@@ -9,12 +9,12 @@
 				<button class="btn btn-primary composer-submit" data-action="post" tabindex="-1"><i class="fa fa-chevron-right"></i></button>
 			</span>
 		</nav>
-		<div class="title-container row" style="margin: 0px;">
+		<div class="title-container row">
 			<!-- IF showHandleInput -->
 			<div class="col-sm-3 col-md-12">
 				<input class="handle form-control" type="text" tabindex="1" placeholder="[[topic:composer.handle_placeholder]]" value="{handle}" />
 			</div>
-			<div class="col-sm-6 col-md-12">
+			<div class="col-sm-9 col-md-12">
 				<!-- IF isTopicOrMain -->
 				<input class="title form-control" type="text" tabindex="1" placeholder="[[topic:composer.title_placeholder]]" value="{title}"/>
 				<!-- ELSE -->
@@ -22,7 +22,7 @@
 				<!-- ENDIF isTopicOrMain -->
 			</div>
 			<!-- ELSE -->
-			<div class="<!-- IF isTopic -->col-lg-6<!-- ELSE -->col-lg-9<!-- ENDIF isTopic --> col-md-12">
+			<div class="<!-- IF isTopic -->col-lg-9<!-- ELSE -->col-lg-12<!-- ENDIF isTopic --> col-md-12">
 				<!-- IF isTopicOrMain -->
 				<input class="title form-control" type="text" tabindex="1" placeholder="[[topic:composer.title_placeholder]]" value="{title}"/>
 				<!-- ELSE -->
@@ -35,7 +35,10 @@
 			</div>
 			<!-- ENDIF isTopic -->
 			<!-- ENDIF showHandleInput -->
-			<div class="col-lg-3 col-md-12 btn-toolbar formatting-bar">
+		</div>
+
+		<div class="row category-tag-row">
+			<div class="btn-toolbar formatting-bar">
 				<div class="btn-group pull-right action-bar hidden-sm hidden-xs">
 					<button class="btn btn-default composer-discard" data-action="discard" tabindex="-1"><i class="fa fa-times"></i> [[topic:composer.discard]]</button>
 
