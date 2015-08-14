@@ -599,16 +599,20 @@
 	// Ajax spoiler
 	function ajaxSpoilerController(req, res, next) {
 		if (req.body['id'] === undefined || req.body['pid'] === undefined) {
+			winston.error("[bbcodes/aspoiler] Not enough parameters to get spoiler content");
 			return res.json({ success: false });
 		}
 		privileges.posts.can('read', req.body['pid'], req.user !== undefined ? req.user.uid : 0, function(err) {
-			if (err !== null) return res.json({ success: false });
-
+			if (err !== null) {
+				winston.error("[bbcodes/aspoiler] Privileges threw error: " + err);
+				return res.json({ success: false });
+			}
 			db.isSetMember('bbdynamic-pid:' + req.body['pid'], req.body['id'], function(err, result) {
 				if (result == true) {
 					// Seems legit. Get content
 					db.getObjectField('bb-ajax-spoiler:content', req.body['id'], function(err, data) {
 						if (err !== null) {
+							winston.error("[bbcodes/aspoiler] Spoiler content threw error: " + err);
 							return res.json({ success: false });
 						}
 						new BBCodeParser({ content: data, pid: req.body['pid'] }, bbCodesTable, 'apply', function(result) {
@@ -616,6 +620,7 @@
 						}).parse();
 					});
 				} else {
+					winston.error("[bbcodes/aspoiler] This spoiler id is not part of the post");
 					return res.json({ success: false });
 				}
 			});
