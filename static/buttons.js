@@ -63,7 +63,7 @@ $('document').ready(function() {
 			spoilerHeader.find(".panel-collapse").toggle();
 		} else {
 			var spoilerId = spoilerHeader.attr('ajax-spoiler-id');
-			var pid = spoilerHeader.parents("li[component=post]").attr('data-pid');
+			var pid = spoilerHeader.parents("[component=post]").attr('data-pid');
 			if (spoilerId !== undefined) {
 				spoilerHeader.find('.ajax-spoiler-spin').removeClass('hidden');
 				spoilerHeader.find('.ajax-spoiler-error').addClass('hidden');

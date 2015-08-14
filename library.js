@@ -720,11 +720,13 @@
 	};
 
 	var converter = require('./bbcodes/converter'),
-		user = module.parent.require('./user');
+		user = module.parent.require('./user'),
+		processing = false;
 
 	function convertDBController(req, res, next) {
 		user.isAdministrator(req.user !== undefined ? req.user.uid : 0, function(err, result) {
-			if (result === true) {
+			if (result === true && processing === false) {
+				processing = true;
 				var allPids;
 				async.waterfall([
 					function(next) {
@@ -742,9 +744,10 @@
 							if (data[i].content === undefined || data[i].content === null) continue;
 							db.setObjectField(allPids[i], 'content', converter.convertMarkdownToBBCodes(data[i].content));
 						}
-						next(null);
+						next(null, {});
 					}
-				], function(err) {
+				], function(err, result) {
+					processing = false;
 					if (err !== null) {
 						winston.info('[BBCodes] Error while converting DB: ' + err);
 						return res.json({ success: false });

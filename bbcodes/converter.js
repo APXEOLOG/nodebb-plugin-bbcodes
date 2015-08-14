@@ -32,7 +32,7 @@
 				if (a[0] === "!" || e[0] === "!") {
 					return a;
 				}
-				return '[URL="' + c + '"]' + b + '[/URL]'
+				return '[url="' + c + '"]' + b + '[/url]'
 			});
 		};
 
@@ -67,7 +67,7 @@
 
 		// expect(converter.image("![My image](http://a.com/image.png)")).toEqual('[IMG alt="My image" title="My image"]http://a.com/image.png[/IMG]');
 		self.image = function(content) {
-			return content.replace(/\!\[([^\]]+)]\(([^)]+)\)/g, '[img alt="$1"]$2[/img]');
+			return content.replace(/\!\[([^\]]+)]\(([^)]+)\)/g, '[img]$2[/img]');
 		};
 
 		/*
